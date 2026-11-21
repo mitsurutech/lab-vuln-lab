@@ -12,7 +12,7 @@ scan() { docker exec "$SCANNER" trivy "$@"; }
 expect() { # expect <output> <line>...
   local out="$1"; shift
   for want in "$@"; do
-    echo "$out" | grep -Fxq -- "$want" || { echo "missing '$want' in: $out" >&2; exit 1; }
+    grep -Fxq -- "$want" <<< "$out" || { echo "missing '$want' in: $out" >&2; exit 1; }
   done
 }
 
