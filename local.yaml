@@ -1,0 +1,8 @@
+# Publishes the lab's web server on your own machine only (127.0.0.1), for running it outside
+# the platform:
+#   docker compose -f compose.yaml -f local.yaml up
+# then the old nginx answers on http://127.0.0.1:8080. It is old on purpose, so keep it on
+# 127.0.0.1 and stop it when you are done.
+services:
+  web:
+    ports: ["127.0.0.1:8080:80"]

@@ -1,0 +1,16 @@
+#!/bin/sh
+# Puts the snapshot where the tools service can read it, the first time only, and then waits.
+# Reports you write to /work stay there while the lab is stopped and started again.
+set -eu
+mkdir -p /work/snapshot /work/reports /work/steps
+for f in /snapshot/epss-2026-11-20.csv.gz /snapshot/kev-2026-11-20.json; do
+  [ -f "/work/snapshot/${f##*/}" ] || cp "$f" /work/snapshot/
+done
+chmod -R a+rwX /work
+echo "scanner: ready, $(trivy --version | sed -n 's/^ *UpdatedAt: /database of /p' | head -n 1)"
+# Stop at once when told to: a shell that is PID 1 ignores TERM while it waits in sleep.
+trap 'exit 0' TERM INT
+while :; do
+  sleep 3600 &
+  wait $!
+done

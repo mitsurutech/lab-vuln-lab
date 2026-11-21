@@ -1,0 +1,10 @@
+# The college shop's web app, a small Flask site. These versions were pinned in 2022
+# and nobody has moved them since. Do not install them anywhere: they are here to be scanned.
+Flask==2.2.2
+Werkzeug==2.2.2
+Jinja2==3.1.2
+requests==2.28.1
+urllib3==1.26.12
+certifi==2022.9.24
+cryptography==38.0.1
+PyYAML==6.0

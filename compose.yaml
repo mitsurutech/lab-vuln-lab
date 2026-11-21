@@ -1,0 +1,89 @@
+# Vulnerability management: scan container images and projects with Trivy, then decide what to
+# fix first with CVSS, EPSS and CISA's Known Exploited Vulnerabilities (KEV) catalogue.
+#
+# Nothing is downloaded when the lab runs, and it has no way out to the internet. Everything is
+# a frozen snapshot inside the scanner's image, so every copy gives the same answers:
+#   - Trivy 0.76.2 and its vulnerability database of 21 November 2026 (07:02 UTC),
+#   - EPSS scores of 20 November 2026 (model v2026.06.15), in /work/snapshot,
+#   - the KEV catalogue, version 2026.11.20 (1,790 entries), in /work/snapshot.
+# A real scan today would find more: new vulnerabilities are published every day.
+#
+# Three services, and nothing else can reach them:
+#   scanner  Trivy, with what it scans in /targets: web-1.25.3.tar and web-1.31.9.tar (the
+#            nginx images, saved as archives), shop/ (a Flask app's requirements.txt) and
+#            reports/ (a Java service's gradle.lockfile, with an old Log4j in it).
+#   web      the college's web server, running nginx 1.25.3 on Alpine 3.18, the same image as
+#            web-1.25.3.tar. It is old on purpose and only this lab can reach it.
+#   tools    Python 3.12, sharing /work with the scanner, to read Trivy's JSON reports beside
+#            the snapshot.
+# The terminal beside the lab reaches them with docker exec, for example
+#   docker exec scanner trivy image --input /targets/web-1.25.3.tar --severity CRITICAL
+#   docker exec scanner trivy fs /targets/shop --format json -o /work/reports/shop.json
+#   docker exec web cat /etc/alpine-release
+#   docker exec tools python3 -c "print(open('/work/snapshot/kev-2026-11-20.json').read(200))"
+#
+# Hand in a short triage report on your own copy for web-1.31.9.tar and the shop project: their
+# findings ranked by what you would fix first with the reason (CVSS, EPSS, KEV, a fix being
+# available), the due date your own patch policy gives each, and one VEX statement you would be
+# willing to sign, with its evidence. Copy the output from the terminal.
+#
+# Only ever scan what you own or have written permission to test. Scanning your own images and
+# code is everyday defensive work; your copy of this lab is the only system here.
+
+services:
+  scanner:
+    image: ghcr.io/mitsurutech/lab-images:SCANNER_TAG@sha256:SCANNER_DIGEST
+    volumes:
+      - work:/work
+    healthcheck:
+      test: ["CMD", "test", "-f", "/work/snapshot/kev-2026-11-20.json"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+    # Measured: Trivy scans every target here in under 200 MB; an SBOM scan needs about the same.
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    labels:
+      lab.title: Trivy scanner
+
+  web:
+    image: nginx:1.25.3-alpine@sha256:f2802c2a9d09c7aa3ace27445dfc5656ff24355da28e7b958074a0111e3fc076
+    expose: ["80"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    deploy:
+      resources:
+        limits:
+          memory: 32M
+    labels:
+      lab.title: College web server
+      lab.open: "80"
+
+  tools:
+    image: python:3.12.15-alpine
+    user: "1000:1000"
+    working_dir: /work
+    # Waits, so the terminal can run Python here; stops at once when the lab stops.
+    command: ["python3", "-c", "import signal, time; signal.signal(signal.SIGTERM, lambda *a: exit(0)); time.sleep(10**9)"]
+    volumes:
+      - work:/work
+    depends_on:
+      scanner:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "test", "-d", "/work/snapshot"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+volumes:
+  work:
