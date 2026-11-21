@@ -32,7 +32,7 @@
 
 services:
   scanner:
-    image: ghcr.io/mitsurutech/lab-images:SCANNER_TAG@sha256:SCANNER_DIGEST
+    image: ghcr.io/mitsurutech/lab-images:5ec118000001-vuln-lab-scanner-77d86af1e968@sha256:71e00878b3f51dab278f34da4aa7f9db48d92da8e9162f65fcb6ba01a716795f
     volumes:
       - work:/work
     healthcheck:

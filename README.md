@@ -52,11 +52,14 @@ The lab has no way out to the internet, so Trivy never updates its database and 
 
 ## Checking the lab
 
-`test/check.sh` starts the lab the way the platform's runner starts every service (all capabilities dropped, `no-new-privileges`, a process limit, memory limits, and no way out to the internet) and checks every total and snapshot figure the lessons quote. It runs on every push, which is the badge at the top.
+`test/check.sh` starts the lab the way the platform's runner starts every service (all capabilities dropped, `no-new-privileges`, a process limit, memory limits, and no way out to the internet) and checks every total and snapshot figure the lessons quote. On every push, which is the badge at the top, GitHub builds the scanner from `image/` and runs it.
 
 ```bash
-test/check.sh
+test/check.sh                                   # the pinned scanner image
+docker build -t scanner image && SCANNER_IMAGE=scanner test/check.sh   # one built from image/
 ```
+
+The pinned image, `ghcr.io/mitsurutech/lab-images:5ec118000001-vuln-lab-scanner-77d86af1e968`, was built from `image/` at commit `77d86af` by the public [lab-builder](https://github.com/mitsurutech/lab-builder) workflow on GitHub's own machines, for amd64 and arm64.
 
 ## Where the data comes from
 
