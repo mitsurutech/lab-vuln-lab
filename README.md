@@ -1,5 +1,7 @@
 # Vulnerability management lab with Trivy: CVE, CVSS, EPSS, KEV, image scanning and SBOMs, offline
 
+[English](README.md) | [Français](README.fr.md) | [Español](README.es.md) | [日本語](README.ja.md) | [Deutsch](README.de.md)
+
 [![check](https://github.com/mitsurutech/lab-vuln-lab/actions/workflows/check.yml/badge.svg)](https://github.com/mitsurutech/lab-vuln-lab/actions/workflows/check.yml)
 
 A ready-made lab for classrooms, from the [MitsuruTech Learning Platform](https://mitsurutech.co.uk/learning), where schools, colleges and universities give every student their own containers and terminal in the browser. It teaches vulnerability management with Trivy, the open-source scanner: students scan container images and project lock files, read CVE identifiers and CVSS vectors, rank findings with EPSS and CISA's Known Exploited Vulnerabilities (KEV) catalogue, write and search SBOMs, record a VEX statement, set patch deadlines and report risk. **It works with no internet at all**: Trivy's vulnerability database and a snapshot of EPSS and KEV are inside the image, so every copy gives the same answers. It is the lab behind the [Vulnerability management](https://mitsurutech.co.uk/resources/university/vulnerability-management) module.
